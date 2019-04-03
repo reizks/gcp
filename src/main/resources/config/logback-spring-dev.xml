@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<configuration>
+
+	<property name="LOG_PATH" value="./logs"/>
+
+	<appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+		<!-- Log message format -->
+		<encoder>
+			<pattern>%d{HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+		</encoder>
+	</appender>
+	
+	<!-- Logstash JSON 형식으로 파일 로그 생성 --> 
+	<!-- /var/log/applicaion/log.json 파일에 최신 로그 생성 --> 
+	<!-- /var/log/applicaion/log_2016-07-15.0.json 파일에 과거 로그 보관 --> 
+	<!-- 5MB 초과, 날짜 변경 시점마다 생성, 생성된지 3일 이상된 파일은 삭제 --> 
+	<appender name="ccp_LOG" class="ch.qos.logback.core.rolling.RollingFileAppender">
+		<File>${LOG_PATH}/gcp-dev.log</File>
+	    <encoder>
+	      <pattern>%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] %-5level %logger{36} - %msg%n</pattern>
+	    </encoder>		
+		<!-- 
+		<encoder class="net.logstash.logback.encoder.LogstashEncoder"> 
+			<jsonGeneratorDecorator class="kr.co.ccpback.PrettyPrintingDecorator"/>
+			<jsonFactoryDecorator class="kr.co.ccpback.ISO8601DateDecorator"/>
+		</encoder>
+		-->
+		<rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy"> 
+			<FileNamePattern>${LOG_PATH}/ccp_%d{yyyy-MM-dd}.%i.log</FileNamePattern>
+			<timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP"> 
+				<maxFileSize>5MB</maxFileSize> 
+			</timeBasedFileNamingAndTriggeringPolicy> 
+			<maxHistory>3</maxHistory> 
+		</rollingPolicy> 
+	</appender>
+
+	<logger name="com.paymint.approval" level="debug" />
+
+	<root level="dev">
+		<appender-ref ref="STDOUT" />
+		<appender-ref ref="ccp_LOG"/>
+	</root>
+</configuration>
